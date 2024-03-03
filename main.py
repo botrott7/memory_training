@@ -12,11 +12,13 @@ class Window(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        size, ok = QInputDialog.getInt(self, 'Выбор размера', 'Введите размер таблицы (напр., 5 для 5x5):', 5, 2, 10)
-        if ok:
-            self.grid_size = size
-        else:
-            sys.exit()  # Выход, если не был выбран размер
+        size = None
+        while size is None:
+            size, ok = QInputDialog.getInt(self, 'Выбор размера', 'Введите размер таблицы (напр., 5 для 5x5):', 5, 2, 10)
+            if ok:
+                self.grid_size = size
+            else:
+                sys.exit()  # Выход, если не был выбран размер
 
         self.total_numbers = self.grid_size ** 2
         self.numbers = list(range(1, self.total_numbers + 1))
@@ -41,7 +43,7 @@ class Window(QWidget):
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.enable_editing)
-        self.timer.start(30000)  # 30 секунд на запоминание
+        self.timer.start(10000)  # 10 секунд на запоминание
 
         self.check_button = QPushButton('Проверить', self)
         self.check_button.clicked.connect(self.check_results)
@@ -59,17 +61,26 @@ class Window(QWidget):
         self.check_button.setEnabled(True)
 
     def check_results(self):
-        correct = 0
-        for i, row in enumerate(self.inputs):
-            for j, line_edit in enumerate(row):
-                number = int(line_edit.text())
-                if number == self.numbers[i * self.grid_size + j]:
-                    correct += 1
-
-        if correct == self.total_numbers:
-            QMessageBox.information(self, 'Результат', 'Поздравляем! Вы правильно запомнили все числа.')
+        if self.grid_size is None:
+            QMessageBox.warning(self, 'Ошибка',
+                                'Размер таблицы не определен. Пожалуйста, введите размер таблицы перед проверкой результатов.')
         else:
-            QMessageBox.warning(self, 'Результат', 'К сожалению, есть ошибки. Попробуйте ещё раз.')
+            correct = 0
+            for i, row in enumerate(self.inputs):
+                for j, line_edit in enumerate(row):
+                    number_text = line_edit.text()
+                    if number_text.strip() == '':
+                        QMessageBox.warning(self, 'Ошибка',
+                                            f'Пожалуйста, заполните все поля перед проверкой результатов.')
+                        return
+                    number = int(number_text)
+                    if number == self.numbers[i * self.grid_size + j]:
+                        correct += 1
+
+            if correct == self.total_numbers:
+                QMessageBox.information(self, 'Результат', 'Поздравляем! Вы правильно запомнили все числа.')
+            else:
+                QMessageBox.warning(self, 'Результат', 'К сожалению, есть ошибки. Попробуйте ещё раз.')
 
 
 if __name__ == '__main__':
