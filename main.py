@@ -14,7 +14,8 @@ class Window(QWidget):
     def init_ui(self):
         size = None
         while size is None:
-            size, ok = QInputDialog.getInt(self, 'Выбор размера', 'Введите размер таблицы (напр., 5 для 5x5):', 5, 2, 10)
+            size, ok = QInputDialog.getInt(self, 'Выбор размера', 'Введите размер таблицы (напр., 5 для 5x5):', 5, 2,
+                                           10)
             if ok:
                 self.grid_size = size
             else:
