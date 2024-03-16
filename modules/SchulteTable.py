@@ -1,5 +1,4 @@
 import random
-import sys
 
 from PyQt5.QtWidgets import (QInputDialog, QLineEdit, QWidget,
                              QGridLayout, QPushButton, QMessageBox)
@@ -10,7 +9,6 @@ class Schulte(QWidget):
     def __init__(self, main_app):
         super().__init__()
         self.main_app = main_app
-        self.grid_size = None  # Размер сетки не определен по умолчанию
         self.init_ui()
 
     def init_ui(self):
@@ -21,7 +19,8 @@ class Schulte(QWidget):
             if ok:
                 self.grid_size = size
             else:
-                sys.exit()  # Выход, если не был выбран размер
+
+                return self.main_app.show()
 
         self.total_numbers = self.grid_size ** 2
         self.numbers = list(range(1, self.total_numbers + 1))
@@ -54,7 +53,11 @@ class Schulte(QWidget):
         self.grid.addWidget(self.check_button, self.grid_size, 0, 1, self.grid_size)  # Разместить кнопку под сеткой
 
         self.setLayout(self.grid)
-        self.show()
+
+    def closeEvent(self, event):
+        self.main_app.show()
+        self.main_app.init_ui()
+        event.accept()
 
     def enable_editing(self):
         for row in self.inputs:
